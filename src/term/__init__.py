@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from ..ID import ID
 
 
 class TermPost(BaseModel):
@@ -7,5 +8,5 @@ class TermPost(BaseModel):
     definition: str = Field(min_length=1, description="Определение термина")
 
 
-class Term(TermPost):
-    id: int = Field(description="ID термина")
+class Term(TermPost, ID):
+    pass

@@ -1,5 +1,6 @@
 from ..db import SessionLocal
 from sqlalchemy import select
+from sqlalchemy.orm.session import Session
 from ..db.models import Term as TermMeta
 from ..term import Term, TermPost
 from . import GatewayException
@@ -27,4 +28,19 @@ def create_term(term: TermPost):
     return Term(id=m.id, name=m.name, definition=m.definition)
 
 
-__all__ = ["term_list", "create_term"]
+def get_term_with_session(id: int, session: Session):
+    term = session.scalar(select(TermMeta).where(TermMeta.id == id))
+    if (term == None):
+        raise GatewayException(f"Термин с ID {id} не найден")
+    else:
+        return term
+
+
+def delete_term(id: int):
+    s = SessionLocal()
+    term = get_term_with_session(id=id, session=s)
+    s.delete(term)
+    s.commit()
+
+
+__all__ = ["term_list", "create_term", "delete_term"]
