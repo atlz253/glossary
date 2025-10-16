@@ -5,3 +5,7 @@ services:
       dockerfile: Dockerfile.develop
     volumes:
       - .:/app:delegated
+      - data:/data
+
+volumes:
+  data:
