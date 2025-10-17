@@ -2,6 +2,12 @@ services:
   app:
     build:
       context: ..
-      dockerfile: docker/Dockerfile.develop
+      dockerfile: docker/Dockerfile.rest.develop
+    volumes:
+      - ..:/app:delegated
+  grpc:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.grpc.develop
     volumes:
       - ..:/app:delegated

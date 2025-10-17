@@ -28,4 +28,4 @@ COPY ./requirements.txt ./requirements.txt
 EXPOSE 8000
 
 SHELL ["/bin/bash", "-c"]
-ENTRYPOINT . /opt/venv/bin/activate && make start
+ENTRYPOINT . /opt/venv/bin/activate && make rest.start

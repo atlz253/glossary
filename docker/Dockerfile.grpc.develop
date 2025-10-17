@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y make
 
 WORKDIR /app
 
-EXPOSE 8000
+EXPOSE 50051
 
 SHELL ["/bin/bash", "-c"]
-ENTRYPOINT [ -d /venv/bin ] || python -m venv /venv && . /venv/bin/activate && pip install -r requirements.txt && make develop
+ENTRYPOINT [ -d /venv/bin ] || python -m venv /venv && . /venv/bin/activate && pip install -r requirements.txt && make grpc.develop

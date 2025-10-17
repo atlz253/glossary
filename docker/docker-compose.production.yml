@@ -2,9 +2,18 @@ services:
   app:
     build:
       context: ..
-      dockerfile: docker/Dockerfile.production
+      dockerfile: docker/Dockerfile.rest.production
     ports:
       - 8000:8000
+    volumes:
+      - data:/data
+    restart: unless-stopped
+  grpc:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.grpc.production
+    ports:
+      - 50051:50051
     volumes:
       - data:/data
     restart: unless-stopped
