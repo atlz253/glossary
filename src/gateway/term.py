@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm.session import Session
 from ..db.models import Term as TermMeta
 from ..term import Term, TermPost
-from . import GatewayException
+from . import GatewayException, ItemNotFoundException
 
 
 def term_list():
@@ -31,9 +31,14 @@ def create_term(term: TermPost):
 def get_term_with_session(id: int, session: Session):
     term = session.scalar(select(TermMeta).where(TermMeta.id == id))
     if (term == None):
-        raise GatewayException(f"Термин с ID {id} не найден")
+        raise ItemNotFoundException(f"Термин с ID {id} не найден")
     else:
         return term
+
+
+def get_term(id: int):
+    term = get_term_with_session(id, SessionLocal())
+    return Term(id=term.id, name=term.name, definition=term.definition)
 
 
 def delete_term(id: int):
@@ -43,4 +48,4 @@ def delete_term(id: int):
     s.commit()
 
 
-__all__ = ["term_list", "create_term", "delete_term"]
+__all__ = ["term_list", "create_term", "get_term", "delete_term"]

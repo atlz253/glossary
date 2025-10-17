@@ -1,8 +1,15 @@
 from fastapi import APIRouter, HTTPException
+
+from ..ExceptionResponse import ExceptionResponse
 from ...term import Term, TermPost
-from ...gateway.term import term_list as term_list_gateway, create_term as create_term_gateway, delete_term as delete_term_gateway
-from ...gateway import GatewayException
+from ...gateway.term import term_list as term_list_gateway, create_term as create_term_gateway, delete_term as delete_term_gateway, get_term as get_term_gateway
+from ...gateway import GatewayException, ItemNotFoundException
 from ...ID import ID
+
+STRINGS = {
+    "term_not_found": "Термин не найден",
+    "term_already_exist": "Термин с данным названием уже существует"
+}
 
 router = APIRouter(prefix="/term")
 
@@ -12,7 +19,15 @@ def term_list() -> list[Term]:
     return term_list_gateway()
 
 
-@router.post("/")
+@router.get("/", responses={404: {"model": ExceptionResponse, "description": STRINGS["term_not_found"]}})
+def get_term(id: ID):
+    try:
+        return get_term_gateway(id.id)
+    except ItemNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/", responses={400: {"model": ExceptionResponse, "description": STRINGS["term_already_exist"]}})
 def create_term(term: TermPost):
     try:
         result = create_term_gateway(term)
@@ -21,13 +36,13 @@ def create_term(term: TermPost):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.delete("/")
+@router.delete("/", responses={404: {"model": ExceptionResponse, "description": STRINGS["term_not_found"]}})
 def delete_term(id: ID):
     try:
         delete_term_gateway(id.id)
         return id.id
-    except GatewayException as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ItemNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 __all__ = ["router"]
