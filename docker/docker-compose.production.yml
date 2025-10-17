@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.production
+    ports:
+      - 8000:8000
+    volumes:
+      - data:/data
+    restart: unless-stopped
+
+volumes:
+  data:
