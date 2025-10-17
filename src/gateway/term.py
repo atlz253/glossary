@@ -48,4 +48,14 @@ def delete_term(id: int):
     s.commit()
 
 
-__all__ = ["term_list", "create_term", "get_term", "delete_term"]
+def edit_term(term: Term):
+    s = SessionLocal()
+    m = get_term_with_session(id=term.id, session=s)
+    m.name = term.name
+    m.definition = term.definition
+    s.commit()
+    s.refresh(m)
+    return Term(id=m.id, name=m.name, definition=m.definition)
+
+
+__all__ = ["term_list", "create_term", "get_term", "delete_term", "edit_term"]
