@@ -21,7 +21,7 @@ def create_term(term: TermPost):
         raise GatewayException(
             f"Термин с названием {term.name} уже существует")
     s = SessionLocal()
-    m = TermMeta(name=term.name, definition=term.definition)
+    m = TermMeta(name=term.name.lower(), definition=term.definition.lower())
     s.add(m)
     s.commit()
     s.refresh(m)
@@ -55,7 +55,7 @@ def edit_term(term: Term):
     m.definition = term.definition
     s.commit()
     s.refresh(m)
-    return Term(id=m.id, name=m.name, definition=m.definition)
+    return Term(id=m.id, name=m.name.lower(), definition=m.definition.lower())
 
 
 __all__ = ["term_list", "create_term", "get_term", "delete_term", "edit_term"]
