@@ -54,8 +54,8 @@ def delete_term(id: int):
 def edit_term(term: Term):
     with SessionLocal() as s:
         m = get_term_with_session(id=term.id, session=s)
-        m.name = term.name
-        m.definition = term.definition
+        m.name = term.name.lower()
+        m.definition = term.definition.lower()
         s.commit()
         s.refresh(m)
         return Term(id=m.id, name=m.name.lower(), definition=m.definition.lower())
