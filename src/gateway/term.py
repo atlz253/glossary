@@ -18,7 +18,7 @@ def is_term_with_name_exist(name: str):
 
 
 def create_term(term: TermPost):
-    if (is_term_with_name_exist(term.name)):
+    if (is_term_with_name_exist(term.name.lower())):
         raise GatewayException(
             f"Термин с названием {term.name} уже существует")
     with SessionLocal() as s:
