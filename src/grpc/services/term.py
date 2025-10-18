@@ -1,5 +1,6 @@
+from src.grpc.compiled.term.v1 import DeleteResponse
 from ..compiled.term.v1 import TermServiceBase, ListResponse, Term
-from ...gateway.term import term_list, get_term, create_term
+from ...gateway.term import term_list, get_term, create_term, delete_term
 from ...gateway import GatewayException, ItemNotFoundException
 from grpclib import GRPCError, Status
 from ...term import TermPost
@@ -23,3 +24,10 @@ class TermService(TermServiceBase):
             return Term(id=t.id, name=t.name, definition=t.definition)
         except GatewayException as e:
             raise GRPCError(Status.FAILED_PRECONDITION, str(e))
+
+    async def delete(self, id: int) -> DeleteResponse:
+        try:
+            delete_term(id)
+            return DeleteResponse(ok=True)
+        except ItemNotFoundException as e:
+            raise GRPCError(Status.NOT_FOUND, str(e))
