@@ -1,2 +1,4 @@
 .venv
+.make
 __pycache__
+node_modules

@@ -1,0 +1,14 @@
+services:
+  k6:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: glossary-k6
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - 5665:5665
+    volumes:
+      - ../src:/src
+    environment:
+      TEST_FILE: /src/tests/rest.ts

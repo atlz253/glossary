@@ -1,9 +1,16 @@
+MAKE_DIR = .make
+
 DOCKER_PATH = docker
 DOCKER_COMPOSE_PRODUCTION = $(DOCKER_PATH)/docker-compose.production.yml
 DOCKER_COMPOSE_DEVELOP = $(DOCKER_PATH)/docker-compose.develop.yml
 
 PROTO_PATH=src/grpc/proto
 PROTO_COMPILED_PATH= src/grpc/compiled
+
+K6_BUILD_STAMP = $(MAKE_DIR)/k6.build.stamp
+
+make.dir.create:
+	if not exist "$(MAKE_DIR)" md "$(MAKE_DIR)"
 
 rest.start:
 	fastapi run src/api/index.py --host 0.0.0.0
@@ -37,3 +44,13 @@ docker.production.down:
 
 proto.build:
 	python -m grpc_tools.protoc -I $(PROTO_PATH) --python_betterproto_out=$(PROTO_COMPILED_PATH) $(PROTO_PATH)/*.proto
+
+$(K6_BUILD_STAMP): k6/docker/Dockerfile
+	docker build -t glossary-k6 -f k6/docker/Dockerfile k6
+	$(file >$@,ok)
+
+k6.build: make.dir.create $(K6_BUILD_STAMP)
+	@:
+
+k6.rest: k6.build
+	docker compose -f k6/docker/docker-compose.yml run -e TEST_FILE=/src/tests/rest.ts --service-ports --rm k6
