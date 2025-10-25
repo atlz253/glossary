@@ -8,7 +8,7 @@
 	},
 	"item": [
 		{
-			"name": "termin",
+			"name": "term",
 			"item": [
 				{
 					"name": "list",
@@ -73,7 +73,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": 2\r\n}",
+							"raw": "{\r\n    \"id\": 6\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -130,8 +130,32 @@
 				{
 					"name": "edit",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 1,\r\n    \"name\": \"Тест\",\r\n    \"definition\": \"Тест редактирования определения\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/term",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"term"
+							]
+						}
 					},
 					"response": []
 				}
@@ -144,6 +168,7 @@
 			"script": {
 				"type": "text/javascript",
 				"packages": {},
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -154,6 +179,7 @@
 			"script": {
 				"type": "text/javascript",
 				"packages": {},
+				"requests": {},
 				"exec": [
 					""
 				]

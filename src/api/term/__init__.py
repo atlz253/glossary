@@ -20,9 +20,9 @@ def term_list() -> list[Term]:
 
 
 @router.get("/", responses={404: {"model": ExceptionResponse, "description": STRINGS["term_not_found"]}})
-def get_term(id: ID):
+def get_term(id: int):
     try:
-        return get_term_gateway(id.id)
+        return get_term_gateway(id)
     except ItemNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
 
