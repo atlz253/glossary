@@ -11,6 +11,9 @@ engine = create_engine(
 SessionLocal = sessionmaker(
     bind=engine, autoflush=False, autocommit=False, future=True)
 
-Base.metadata.create_all(bind=engine)
 
-__all__ = ["SessionLocal"]
+def create_database():
+    Base.metadata.create_all(bind=engine)
+
+
+__all__ = ["SessionLocal", "create_database"]

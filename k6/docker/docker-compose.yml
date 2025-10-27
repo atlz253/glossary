@@ -1,8 +1,6 @@
 services:
   k6:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
+    image: grafana/k6:1.3.0
     container_name: glossary-k6
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -10,5 +8,8 @@ services:
       - 5665:5665
     volumes:
       - ../src:/src
+      - ../../proto:/proto
     environment:
-      TEST_FILE: /src/tests/rest.ts
+      - K6_WEB_DASHBOARD=true
+      - TEST_FILE=/src/tests/rest.ts
+    entrypoint: ["/bin/sh", "-lc", "k6 run $${TEST_FILE}"]
