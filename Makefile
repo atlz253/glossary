@@ -38,7 +38,7 @@ docker.production.build:
 	docker-compose -f $(DOCKER_COMPOSE_PRODUCTION) build
 
 docker.production.down:
-	docker-compose -f $(DOCKER_COMPOSE_PRODUCTION) build
+	docker-compose -f $(DOCKER_COMPOSE_PRODUCTION) down
 
 proto.build:
 	python -m grpc_tools.protoc -I $(PROTO_PATH) --python_betterproto_out=$(PROTO_COMPILED_PATH) $(PROTO_PATH)/*.proto
