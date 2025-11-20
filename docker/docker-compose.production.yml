@@ -14,9 +14,30 @@ services:
       dockerfile: docker/Dockerfile.grpc.production
     ports:
       - 50051:50051
+      - 8001:8001
     volumes:
       - data:/data
     restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    ports:
+      - 9090:9090
+    volumes:
+      - prometheus_data:/prometheus
+      - ../prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  grafana:
+    image: grafana/grafana:12.1
+    ports:
+      - 3333:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
 
 volumes:
   data:
+  grafana_data:
+  prometheus_data:
