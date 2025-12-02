@@ -16,3 +16,6 @@ scrape_configs:
   - job_name: "gRPC"
     static_configs:
       - targets: ["grpc:8001"]
+  - job_name: "websocket"
+    static_configs:
+      - targets: ["websocket:8002"]

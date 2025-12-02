@@ -22,6 +22,12 @@ grpc.start:
 grpc.develop:
 	watchfiles "python -m src.grpc.index"
 
+websocket.develop:
+	uvicorn src.websocket.index:app --host 0.0.0.0 --port 5000 --reload
+
+websocket.start:
+	uvicorn src.websocket.index:app --host 0.0.0.0 --port 5000
+
 docker.develop.up:
 	docker-compose -f $(DOCKER_COMPOSE_PRODUCTION) -f $(DOCKER_COMPOSE_DEVELOP) up
 
@@ -48,3 +54,6 @@ k6.rest:
 
 k6.grpc:
 	docker compose -f k6/docker/docker-compose.yml run -e TEST_FILE=/src/tests/grpc.ts --service-ports --rm k6
+
+k6.websocket:
+	docker compose -f k6/docker/docker-compose.yml run -e TEST_FILE=/src/tests/websocket.ts --service-ports --rm k6

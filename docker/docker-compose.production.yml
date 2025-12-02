@@ -18,6 +18,16 @@ services:
     volumes:
       - data:/data
     restart: unless-stopped
+  websocket:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.websocket.production
+    ports:
+      - 5000:5000
+      - 8002:8002
+    volumes:
+      - data:/data
+    restart: unless-stopped
   prometheus:
     image: prom/prometheus:v3.7.3
     ports:

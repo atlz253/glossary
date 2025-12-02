@@ -11,3 +11,9 @@ services:
       dockerfile: docker/Dockerfile.grpc.develop
     volumes:
       - ..:/app:delegated
+  websocket:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.websocket.develop
+    volumes:
+      - ..:/app:delegated

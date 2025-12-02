@@ -9,4 +9,9 @@ class TermPost(BaseModel):
 
 
 class Term(TermPost, ID):
-    pass
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "definition": self.definition
+        }
