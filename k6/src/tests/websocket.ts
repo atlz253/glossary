@@ -32,7 +32,7 @@ export const options: Options = {
     termEdit: {
       executor: "shared-iterations",
       exec: termEdit.name,
-      vus: 10,
+      vus: 100,
       iterations: 1000,
     },
   },
