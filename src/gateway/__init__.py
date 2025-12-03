@@ -4,3 +4,7 @@ class GatewayException(Exception):
 
 class ItemNotFoundException(GatewayException):
     pass
+
+
+class TimeoutException(GatewayException):
+    pass

@@ -1,6 +1,6 @@
 from .. import sio
 from ...gateway.term import term_list as term_list_gateway, create_term as create_term_gateway, delete_term as delete_term_gateway, get_term as get_term_gateway, edit_term as edit_term_gateway
-from ...gateway import ItemNotFoundException, GatewayException
+from ...gateway import ItemNotFoundException, GatewayException, TimeoutException
 from ...term import TermPost, Term
 from pydantic import ValidationError
 from ..prometheus import WS_MESSAGES_TOTAL, WS_ERRORS_TOTAL, WS_EVENT_DURATION
@@ -17,7 +17,11 @@ EVENTS = {
 
 @sio.event
 async def term_list(sid: str, data=None):
-    await sio.emit(EVENTS["term_list_response"], list(map(lambda t: t.to_dict(), term_list_gateway())), to=sid)
+    try:
+        await sio.emit(EVENTS["term_list_response"], list(map(lambda t: t.to_dict(), term_list_gateway())), to=sid)
+    except TimeoutException as e:
+        WS_ERRORS_TOTAL.labels(event="get_term").inc()
+        await sio.emit(EVENTS["error"], {"message": str(e)}, to=sid)
 
 
 @sio.event
@@ -33,6 +37,9 @@ async def get_term(sid: str, data: dict):
             except ItemNotFoundException as error:
                 WS_ERRORS_TOTAL.labels(event="get_term").inc()
                 await sio.emit(EVENTS["error"], {"message": str(error)}, to=sid)
+            except TimeoutException as e:
+                WS_ERRORS_TOTAL.labels(event="get_term").inc()
+                await sio.emit(EVENTS["error"], {"message": str(e)}, to=sid)
 
 
 @sio.event
@@ -45,6 +52,9 @@ async def create_term(sid: str, data: dict):
         except ValidationError:
             WS_ERRORS_TOTAL.labels(event="create_term").inc()
             await sio.emit(EVENTS["error"], {"message": "Ошибка валидации"}, to=sid)
+        except TimeoutException as e:
+            WS_ERRORS_TOTAL.labels(event="get_term").inc()
+            await sio.emit(EVENTS["error"], {"message": str(e)}, to=sid)
         except GatewayException as error:
             WS_ERRORS_TOTAL.labels(event="create_term").inc()
             await sio.emit(EVENTS["error"], {"message": str(error)}, to=sid)
@@ -63,6 +73,9 @@ async def edit_term(sid: str, data: dict):
         except ItemNotFoundException as error:
             WS_ERRORS_TOTAL.labels(event="edit_term").inc()
             await sio.emit(EVENTS["error"], {"message": str(error)}, to=sid)
+        except TimeoutException as e:
+            WS_ERRORS_TOTAL.labels(event="get_term").inc()
+            await sio.emit(EVENTS["error"], {"message": str(e)}, to=sid)
 
 
 @sio.event
@@ -78,3 +91,6 @@ async def delete_term(sid: str, data: dict):
             except ItemNotFoundException as error:
                 WS_ERRORS_TOTAL.labels(event="delete_term").inc()
                 await sio.emit(EVENTS["error"], {"message": str(error)}, to=sid)
+            except TimeoutException as e:
+                WS_ERRORS_TOTAL.labels(event="get_term").inc()
+                await sio.emit(EVENTS["error"], {"message": str(e)}, to=sid)

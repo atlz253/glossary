@@ -3,31 +3,41 @@ from sqlalchemy import select
 from sqlalchemy.orm.session import Session
 from ..db.models import Term as TermMeta
 from ..term import Term, TermPost
-from . import GatewayException, ItemNotFoundException
+from . import GatewayException, ItemNotFoundException, TimeoutException
+from sqlalchemy.exc import TimeoutError as DBTimeoutError
 
 
 def term_list():
-    with SessionLocal() as s:
-        terms = s.scalars(select(TermMeta)).all()
-        return list(map(lambda t: Term(id=t.id, name=t.name, definition=t.definition), terms))
+    try:
+        with SessionLocal() as s:
+            terms = s.scalars(select(TermMeta)).all()
+            return list(map(lambda t: Term(id=t.id, name=t.name, definition=t.definition), terms))
+    except DBTimeoutError as e:
+        raise TimeoutException(str(e))
 
 
 def is_term_with_name_exist(name: str):
-    with SessionLocal() as s:
-        return s.scalar(select(TermMeta).where(TermMeta.name == name)) != None
+    try:
+        with SessionLocal() as s:
+            return s.scalar(select(TermMeta).where(TermMeta.name == name)) != None
+    except DBTimeoutError as e:
+        raise TimeoutException(str(e))
 
 
 def create_term(term: TermPost):
     if (is_term_with_name_exist(term.name.lower())):
         raise GatewayException(
             f"Термин с названием {term.name} уже существует")
-    with SessionLocal() as s:
-        m = TermMeta(name=term.name.lower(),
-                     definition=term.definition.lower())
-        s.add(m)
-        s.commit()
-        s.refresh(m)
-        return Term(id=m.id, name=m.name, definition=m.definition)
+    try:
+        with SessionLocal() as s:
+            m = TermMeta(name=term.name.lower(),
+                         definition=term.definition.lower())
+            s.add(m)
+            s.commit()
+            s.refresh(m)
+            return Term(id=m.id, name=m.name, definition=m.definition)
+    except DBTimeoutError as e:
+        raise TimeoutException(str(e))
 
 
 def get_term_with_session(id: int, session: Session):
@@ -39,26 +49,35 @@ def get_term_with_session(id: int, session: Session):
 
 
 def get_term(id: int):
-    with SessionLocal() as s:
-        term = get_term_with_session(id, s)
-        return Term(id=term.id, name=term.name, definition=term.definition)
+    try:
+        with SessionLocal() as s:
+            term = get_term_with_session(id, s)
+            return Term(id=term.id, name=term.name, definition=term.definition)
+    except DBTimeoutError as e:
+        raise TimeoutException(str(e))
 
 
 def delete_term(id: int):
-    with SessionLocal() as s:
-        term = get_term_with_session(id=id, session=s)
-        s.delete(term)
-        s.commit()
+    try:
+        with SessionLocal() as s:
+            term = get_term_with_session(id=id, session=s)
+            s.delete(term)
+            s.commit()
+    except DBTimeoutError as e:
+        raise TimeoutException(str(e))
 
 
 def edit_term(term: Term):
-    with SessionLocal() as s:
-        m = get_term_with_session(id=term.id, session=s)
-        m.name = term.name.lower()
-        m.definition = term.definition.lower()
-        s.commit()
-        s.refresh(m)
-        return Term(id=m.id, name=m.name.lower(), definition=m.definition.lower())
+    try:
+        with SessionLocal() as s:
+            m = get_term_with_session(id=term.id, session=s)
+            m.name = term.name.lower()
+            m.definition = term.definition.lower()
+            s.commit()
+            s.refresh(m)
+            return Term(id=m.id, name=m.name.lower(), definition=m.definition.lower())
+    except DBTimeoutError as e:
+        raise TimeoutException(str(e))
 
 
 __all__ = ["term_list", "create_term", "get_term", "delete_term", "edit_term"]
