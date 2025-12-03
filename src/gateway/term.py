@@ -5,9 +5,11 @@ from ..db.models import Term as TermMeta
 from ..term import Term, TermPost
 from . import GatewayException, ItemNotFoundException, TimeoutException
 from sqlalchemy.exc import TimeoutError as DBTimeoutError
+from ..db.limits import limit_db_concurrency
 
 
-def term_list():
+@limit_db_concurrency
+async def term_list():
     try:
         with SessionLocal() as s:
             terms = s.scalars(select(TermMeta)).all()
@@ -16,7 +18,8 @@ def term_list():
         raise TimeoutException(str(e))
 
 
-def is_term_with_name_exist(name: str):
+@limit_db_concurrency
+async def is_term_with_name_exist(name: str):
     try:
         with SessionLocal() as s:
             return s.scalar(select(TermMeta).where(TermMeta.name == name)) != None
@@ -24,8 +27,9 @@ def is_term_with_name_exist(name: str):
         raise TimeoutException(str(e))
 
 
-def create_term(term: TermPost):
-    if (is_term_with_name_exist(term.name.lower())):
+@limit_db_concurrency
+async def create_term(term: TermPost):
+    if (await is_term_with_name_exist(term.name.lower())):
         raise GatewayException(
             f"Термин с названием {term.name} уже существует")
     try:
@@ -48,7 +52,8 @@ def get_term_with_session(id: int, session: Session):
         return term
 
 
-def get_term(id: int):
+@limit_db_concurrency
+async def get_term(id: int):
     try:
         with SessionLocal() as s:
             term = get_term_with_session(id, s)
@@ -57,7 +62,8 @@ def get_term(id: int):
         raise TimeoutException(str(e))
 
 
-def delete_term(id: int):
+@limit_db_concurrency
+async def delete_term(id: int):
     try:
         with SessionLocal() as s:
             term = get_term_with_session(id=id, session=s)
@@ -67,7 +73,8 @@ def delete_term(id: int):
         raise TimeoutException(str(e))
 
 
-def edit_term(term: Term):
+@limit_db_concurrency
+async def edit_term(term: Term):
     try:
         with SessionLocal() as s:
             m = get_term_with_session(id=term.id, session=s)

@@ -12,7 +12,7 @@ class TermService(TermServiceBase):
         with RPC_DURATION.labels("TermService/list").time():
             RPC_COUNTER.labels("get").inc()
             try:
-                terms = term_list()
+                terms = await term_list()
                 return ListResponse(items=list(map(lambda t: Term(id=t.id, name=t.name, definition=t.definition), terms)))
             except TimeoutException as e:
                 raise GRPCError(Status.INTERNAL, str(e))
@@ -21,7 +21,7 @@ class TermService(TermServiceBase):
         with RPC_DURATION.labels("TermService/get").time():
             RPC_COUNTER.labels("TermService/get").inc()
             try:
-                t = get_term(id)
+                t = await get_term(id)
                 return Term(id=t.id, name=t.name, definition=t.definition)
             except ItemNotFoundException as e:
                 raise GRPCError(Status.NOT_FOUND, str(e))
@@ -32,7 +32,7 @@ class TermService(TermServiceBase):
         with RPC_DURATION.labels("TermService/create").time():
             RPC_COUNTER.labels("TermService/create").inc()
             try:
-                t = create_term(TermPost(name=name, definition=definition))
+                t = await create_term(TermPost(name=name, definition=definition))
                 return Term(id=t.id, name=t.name, definition=t.definition)
             except TimeoutException as e:
                 raise GRPCError(Status.INTERNAL, str(e))
@@ -43,7 +43,7 @@ class TermService(TermServiceBase):
         with RPC_DURATION.labels("TermService/delete").time():
             RPC_COUNTER.labels("TermService/delete").inc()
             try:
-                delete_term(id)
+                await delete_term(id)
                 return DeleteResponse(ok=True)
             except ItemNotFoundException as e:
                 raise GRPCError(Status.NOT_FOUND, str(e))
@@ -54,7 +54,7 @@ class TermService(TermServiceBase):
         with RPC_DURATION.labels("TermService/update").time():
             RPC_COUNTER.labels("TermService/update").inc()
             try:
-                t = edit_term(TermDomain(
+                t = await edit_term(TermDomain(
                     id=id, name=name, definition=definition))
                 return Term(id=t.id, name=t.name, definition=t.definition)
             except ItemNotFoundException as e:

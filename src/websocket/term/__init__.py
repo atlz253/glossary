@@ -18,7 +18,7 @@ EVENTS = {
 @sio.event
 async def term_list(sid: str, data=None):
     try:
-        await sio.emit(EVENTS["term_list_response"], list(map(lambda t: t.to_dict(), term_list_gateway())), to=sid)
+        await sio.emit(EVENTS["term_list_response"], list(map(lambda t: t.to_dict(), await term_list_gateway())), to=sid)
     except TimeoutException as e:
         WS_ERRORS_TOTAL.labels(event="get_term").inc()
         await sio.emit(EVENTS["error"], {"message": str(e)}, to=sid)
@@ -32,7 +32,7 @@ async def get_term(sid: str, data: dict):
             await sio.emit(EVENTS["error"], {"message": "в теле запроса отсутствует id"}, to=sid)
         else:
             try:
-                term = get_term_gateway(data["id"])
+                term = await get_term_gateway(data["id"])
                 await sio.emit(EVENTS["get_term_response"], term.to_dict(), to=sid)
             except ItemNotFoundException as error:
                 WS_ERRORS_TOTAL.labels(event="get_term").inc()
@@ -47,7 +47,7 @@ async def create_term(sid: str, data: dict):
     with WS_EVENT_DURATION.labels(event="create_term").time():
         WS_MESSAGES_TOTAL.labels(event="create_term").inc()
         try:
-            term = create_term_gateway(TermPost(**data))
+            term = await create_term_gateway(TermPost(**data))
             await sio.emit(EVENTS["create_term_response"], term.to_dict(), to=sid)
         except ValidationError:
             WS_ERRORS_TOTAL.labels(event="create_term").inc()
@@ -65,7 +65,7 @@ async def edit_term(sid: str, data: dict):
     with WS_EVENT_DURATION.labels(event="edit_term").time():
         WS_MESSAGES_TOTAL.labels(event="edit_term").inc()
         try:
-            term = edit_term_gateway(Term(**data))
+            term = await edit_term_gateway(Term(**data))
             await sio.emit(EVENTS["edit_term_response"], term.to_dict(), to=sid)
         except ValidationError:
             WS_ERRORS_TOTAL.labels(event="edit_term").inc()
@@ -86,7 +86,7 @@ async def delete_term(sid: str, data: dict):
             await sio.emit(EVENTS["error"], {"message": "в теле запроса отсутствует id"}, to=sid)
         else:
             try:
-                delete_term_gateway(data["id"])
+                await delete_term_gateway(data["id"])
                 await sio.emit(EVENTS["delete_term_response"], {"status": "ok"}, to=sid)
             except ItemNotFoundException as error:
                 WS_ERRORS_TOTAL.labels(event="delete_term").inc()
