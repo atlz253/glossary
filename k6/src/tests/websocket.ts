@@ -11,7 +11,7 @@ const WEBSOCKET_URL = "ws://host.docker.internal:5000";
 
 export const options: Options = {
   scenarios: {
-    termList: {
+    termFind: {
       executor: "shared-iterations",
       exec: termFind.name,
       vus: 100,
@@ -43,7 +43,7 @@ export function termFind() {
   if (list.length === 0) return;
   const term = randomArrayItem(list);
   socketio.connect(WEBSOCKET_URL);
-  socketio.emit("get_term", JSON.stringify({ id: term.id }));
+  socketio.emit("get_term", { id: term.id });
   check(true, { "emit get_term event": (v) => v === true });
   sleep(RESPONSE_WAIT_TIME);
   socketio.disconnect();
@@ -52,7 +52,7 @@ export function termFind() {
 export function termCreate() {
   const t: TermPost = { name: uuid(), definition: uuid() };
   socketio.connect(WEBSOCKET_URL);
-  socketio.emit("create_term", JSON.stringify(t));
+  socketio.emit("create_term", t);
   check(true, { "emit create_term event": (v) => v === true });
   sleep(RESPONSE_WAIT_TIME);
   socketio.disconnect();
@@ -63,7 +63,7 @@ export function termDelete() {
   if (list.length === 0) return;
   const term = randomArrayItem(list);
   socketio.connect(WEBSOCKET_URL);
-  socketio.emit("delete_term", JSON.stringify({ id: term.id }));
+  socketio.emit("delete_term", { id: term.id });
   check(true, { "emit delete_term event": (v) => v === true });
   sleep(RESPONSE_WAIT_TIME);
   socketio.disconnect();
@@ -74,14 +74,11 @@ export function termEdit() {
   if (list.length === 0) return;
   const term = randomArrayItem(list);
   socketio.connect(WEBSOCKET_URL);
-  socketio.emit(
-    "edit_term",
-    JSON.stringify({
-      id: term.id,
-      name: term.name,
-      definition: uuid(),
-    })
-  );
+  socketio.emit("edit_term", {
+    id: term.id,
+    name: term.name,
+    definition: uuid(),
+  });
   check(true, { "emit edit_term event": (v) => v === true });
   sleep(RESPONSE_WAIT_TIME);
   socketio.disconnect();
